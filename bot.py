@@ -391,13 +391,21 @@ class Bot(Client):
                 lambda payload, n=name: self.process_bot_event(n, payload)
             )
 
-    def polling(self, block: bool = True):
+    def polling(self, block: bool = True, skip_pending: bool = False):
         """
         Log in (token introspection), wire up SSE handlers and start receiving.
         Blocks the calling thread by default; pass ``block=False`` to return
         immediately (the SSE reader runs in a background daemon thread).
+
+        ``skip_pending=True`` starts from live events only: everything queued
+        while the bot was offline is discarded server-side instead of being
+        replayed (like Telegram's ``drop_pending_updates``). Applies to the
+        first connect only — events arriving during a later reconnect gap are
+        still delivered.
         """
         self._register_sse_handlers()
+        if skip_pending:
+            self.drop_pending = True
         self.get_me()  # validates token + starts the SSE stream
 
         if self.startup_handler:
@@ -418,13 +426,13 @@ class Bot(Client):
     # Amino compat (AminoLightBots surface)
     # ======================================================================
 
-    def start_websocket_handling(self):
+    def start_websocket_handling(self, skip_pending: bool = False):
         """
         Amino-compat: AminoLightBots' entry point. Astranet has no websocket —
         this wires the SSE handlers and returns immediately (the old method was
         non-blocking too; ported bots keep their own ``while True`` loop).
         """
-        self.polling(block=False)
+        self.polling(block=False, skip_pending=skip_pending)
 
     @property
     def api(self) -> str:
