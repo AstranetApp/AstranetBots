@@ -1,5 +1,7 @@
 # AstranetBots
 
+[Документация](https://welcome.astranetapp.com/docs/)
+
 Фреймворк для ботов [Astranet](https://astranetapp.com) в стиле pyTelegramBotAPI:
 декораторы обработчиков, команды, фильтры, inline-кнопки, next-step и состояния.
 Работает поверх [AstranetPy](https://github.com/AstranetApp/AstranetPy).
